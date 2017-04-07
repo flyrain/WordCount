@@ -1,11 +1,11 @@
 package com.yufeigu;
 
 import java.io.IOException;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -21,19 +21,21 @@ public class WordCount {
 
   public static void main(String[] args) throws Exception {
     LOG.info("Word count starting ...");
-    Configuration c = new Configuration();
-    String[] files = new GenericOptionsParser(c, args).getRemainingArgs();
+    JobConf jobConf = new JobConf();
+    String[] files = new GenericOptionsParser(jobConf, args).getRemainingArgs();
     Path input = new Path(files[0]);
     Path output = new Path(files[1]);
-    Job j = new Job(c, "wordcount");
-    j.setJarByClass(WordCount.class);
-    j.setMapperClass(WordCount.MapForWordCount.class);
-    j.setReducerClass(WordCount.ReduceForWordCount.class);
-    j.setOutputKeyClass(Text.class);
-    j.setOutputValueClass(IntWritable.class);
-    FileInputFormat.addInputPath(j, input);
-    FileOutputFormat.setOutputPath(j, output);
-    System.exit(j.waitForCompletion(true) ? 0 : 1);
+
+    jobConf.setJobName("wordcount");
+    Job job = Job.getInstance(jobConf);
+    job.setJarByClass(WordCount.class);
+    job.setMapperClass(WordCount.MapForWordCount.class);
+    job.setReducerClass(WordCount.ReduceForWordCount.class);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IntWritable.class);
+    FileInputFormat.addInputPath(job, input);
+    FileOutputFormat.setOutputPath(job, output);
+    System.exit(job.waitForCompletion(true) ? 0 : 1);
   }
 
   public static class MapForWordCount extends Mapper<LongWritable, Text, Text, IntWritable> {
