@@ -10,3 +10,5 @@ Check the result:
 ```
     hadoop fs -cat /tmp/output/part-r-00001
 ```
+
+You can find the WordCount-1.0-SNAPSHOT.jar under local nodemanager directory, but it is renamed to job.jar instead of original name.
